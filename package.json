@@ -1,0 +1,21 @@
+{
+  "name": "microtexture-workbench",
+  "version": "1.0.0",
+  "description": "本地显微图像纹理分区审阅台：方向场 + 一致性/强度阈值 + 分水岭合并 + 版本化保存",
+  "main": "server/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node test/e2e.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1",
+    "pngjs": "^7.0.0",
+    "sharp": "^0.33.5"
+  }
+}

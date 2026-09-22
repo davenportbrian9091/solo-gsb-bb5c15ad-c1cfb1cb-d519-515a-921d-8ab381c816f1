@@ -1,0 +1,14 @@
+services:
+  workbench:
+    build: .
+    image: microtexture-workbench:latest
+    container_name: microtexture-workbench
+    ports:
+      - "8080:8080"
+    volumes:
+      # 数据库与上传图像持久化到宿主机，容器删除后数据仍在
+      - ./data:/app/data
+    environment:
+      - PORT=8080
+      - DATA_DIR=/app/data
+    restart: unless-stopped

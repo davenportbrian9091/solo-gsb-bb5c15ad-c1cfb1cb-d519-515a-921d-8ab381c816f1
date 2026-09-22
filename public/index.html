@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>显微图像纹理分区审阅台</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <aside class="sidebar">
+    <h1>显微纹理审阅台</h1>
+
+    <section>
+      <h2>① 上传显微图</h2>
+      <form id="uploadForm">
+        <input type="file" id="fileInput" accept="image/*" required />
+        <label class="field">
+          像素尺度 (µm/px，原图)
+          <input type="number" id="scaleInput" step="0.0001" min="0" placeholder="例如 0.25" />
+        </label>
+        <button type="submit">上传并分析</button>
+        <p class="hint">灰度图最佳；彩色图将自动转灰度。分析分辨率上限 1000px 长边。</p>
+      </form>
+    </section>
+
+    <section id="imageListSection" hidden>
+      <h2>已上传图像</h2>
+      <select id="imageSelect"></select>
+    </section>
+
+    <section id="controlSection" hidden>
+      <h2>② 阈值调整</h2>
+      <div class="slider">
+        <label>梯度强度阈值 <span id="strengthVal"></span></label>
+        <input type="range" id="strengthThresh" min="0" max="95" step="1" value="35" />
+        <small>按强度分位数截取候选纹理像素，越高候选越少</small>
+      </div>
+      <div class="slider">
+        <label>方向一致性阈值 <span id="coherenceVal"></span></label>
+        <input type="range" id="coherenceThresh" min="0" max="0.95" step="0.01" value="0.35" />
+        <small>结构张量各向异性比，低于该值视为方向不显著</small>
+      </div>
+      <div class="slider">
+        <label>区域合并阈值 <span id="mergeVal"></span></label>
+        <input type="range" id="mergeCutoff" min="0" max="1" step="0.01" value="0.30" />
+        <small>相邻区域方向越接近越易合并；越大合并越激进</small>
+      </div>
+
+      <h2>③ 叠加显示</h2>
+      <div class="layers">
+        <label><input type="checkbox" id="layerBase" checked /> 原图</label>
+        <label><input type="checkbox" id="layerField" /> 方向场</label>
+        <label><input type="checkbox" id="layerRegions" checked /> 区域轮廓</label>
+      </div>
+      <div class="opacity">
+        <label>方向层透明度 <span id="fieldOpacityVal">100%</span></label>
+        <input type="range" id="fieldOpacity" min="0" max="100" value="100" />
+        <label>轮廓层透明度 <span id="regionOpacityVal">100%</span></label>
+        <input type="range" id="regionOpacity" min="0" max="100" value="100" />
+      </div>
+      <div class="legend">
+        <span><i class="sw" style="background:#2ee6a8"></i>高置信边界</span>
+        <span><i class="sw" style="background:#ff4d4d"></i>低置信边界</span>
+        <span><i class="sw" style="background:#fff"></i>候选区边缘</span>
+      </div>
+
+      <h2>④ 保存版本</h2>
+      <div class="save-row">
+        <input type="text" id="noteInput" placeholder="版本备注（可选）" maxlength="500" />
+        <button id="saveBtn">保存当前结果</button>
+      </div>
+      <div id="versionList" class="versions"></div>
+    </section>
+  </aside>
+
+  <main class="main">
+    <div id="welcome" class="welcome">
+      <p>上传一张灰度显微图像开始审阅。</p>
+      <p class="hint">系统将计算局部梯度方向场，按方向一致性与强度阈值生成候选纹理区域，<br/>
+      采用标记控制的分水岭防止粘连、分水岭式合并，并以<span class="red">红色</span>标出低置信度边界。</p>
+    </div>
+    <div id="viewer" class="viewer" hidden>
+      <div class="viewer-head">
+        <div id="imageTitle" class="title"></div>
+        <div id="stats" class="stats"></div>
+      </div>
+      <div class="stage-wrap">
+        <div id="stage" class="stage"></div>
+      </div>
+      <div class="region-panel">
+        <h3>区域统计（按面积降序，点击行在图上定位）</h3>
+        <div class="table-wrap">
+          <table id="regionTable">
+            <thead>
+              <tr>
+                <th>#</th><th>面积 px²</th><th>面积 µm²</th>
+                <th>宽 µm</th><th>高 µm</th>
+                <th>平均方向°</th><th>方向对齐度</th><th>平均一致性</th><th>平均强度</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
